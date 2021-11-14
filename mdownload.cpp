@@ -5,9 +5,10 @@
 #include <QDebug>
 #include <QDateTime>
 #include <iostream>
+#include "global.h"
 using namespace std;
-#define ARIA2C_Path "I:\\QT\\aria2c.exe"
-#define SZIP_Path "D:\\BSpider\\7z\\7z.exe"
+#define ARIA2C_Path "tools/aria2c/aria2c.exe"
+#define SZIP_Path "tools/7zip/7z.exe"
 
 #define putIntoData(a,b,c) if(dt[0]==a)b=c;
 #define putIntoDataD(a,b) if(dt[0]==a)b=dt[1];
@@ -50,13 +51,18 @@ void MDownload::_unzip(){
         if(out.replace("\r","\n").indexOf("Everything is Ok\n")!=-1){
 //           if(finishedCallBack)finishedCallBack(this);
             emit finishedUnzipping(this);
+            QFile downloadFile(realFilePath);
+            downloadFile.remove();
         }
     });
     QStringList args;
-    unzipPath=realFilePath+"_extracted";
+
+    if(realFilePath.endsWith(".zip"))unzipPath=realFilePath.left(realFilePath.length()-4);
+    else unzipPath=realFilePath+"_extracted";
     args<<"x"<<QString(realFilePath).replace("//","/")<<"-o"+unzipPath;
     this->szipProcess.start(SZIP_Path,args);
-    qDebug()<<args.join(" ");
+    qDebug()<<"Unzip args:"<<args.join(" ");
+
 }
 
 MDownload::MDownload(QString url,QString path,QObject* pa=nullptr)
@@ -136,7 +142,8 @@ MDownload::MDownload(QString url,QString path,QObject* pa=nullptr)
         qDebug()<<this->aria2cProcess.readAllStandardError();
     });
     QStringList args;
-    args<<"-s"<<"1"<<"-x"<<"1"<<url<<"--dir="+path<<"--all-proxy=http://localhost:41091";
+    args<<"-s"<<"1"<<"-x"<<"1"<<url<<"--dir="+path<<"--allow-overwrite=true";
+    if(getSetting("enableProxy").toInt())args<<"--all-proxy="+getSetting("proxyAddr");
     //    args<<"/c"<<"echo"<<"12345";
     this->aria2cProcess.start(ARIA2C_Path,args);
 }

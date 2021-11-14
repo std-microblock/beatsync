@@ -18,6 +18,8 @@ public:
 private slots:
     void on_pushButton_clicked();
 
+    void on_enableHTTP_stateChanged(int arg1);
+
 private:
     Ui::SettingsWin *ui;
 };

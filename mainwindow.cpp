@@ -59,6 +59,7 @@ MainWindow::MainWindow(QWidget *parent)
     {
         //        qDebug()<<QString::fromStdString(global::profile["cachePath"].get<std::string>());
         if(global::profile["cachePath"].is_string())readCache(QString::fromStdString(global::profile["cachePath"].get<std::string>()));
+        else ui->updateCacheBtn->click();
     }
 
 
@@ -129,9 +130,29 @@ MainWindow::MainWindow(QWidget *parent)
             btnSync->setText("同步");
             btnSync->setStyleSheet("padding:2px 10px;border-radius:2px");
             connect(btnSync,&QPushButton::clicked,[=](){
-                for(int x=0;x<maps.length();x++){
-                    if(maps[x].matchJSONFilter(pset["filter"])){
+                int counter=0;
+                QDir songsDir(CustomLevelsPath);
+                songsDir.setFilter(QDir::Dirs);
+                auto songList=songsDir.entryList();
+                for(int x=0;x<maps.length()&&
+                    (!pset["limit"].is_number_integer()||
+                     counter<pset["limit"].get<int>());x++){
+
+                    bool flagExists=false;
+                    for(int a=0;a<songList.size();a++){
+//                        qDebug()<<maps[x].id;
+                        if(songList[a].startsWith(maps[x].id)){
+                            flagExists=true;
+                            break;
+                        }
+                    }
+                    if(flagExists)continue;
+
+
+                    if(maps[x].matchJSONFilter(pset["filter"])
+                            &&findInDownloadList(maps[x])==-1){
                         downloadList.push_back(maps[x]);
+                        counter++;
                     }
                 }
             });
@@ -169,6 +190,7 @@ MainWindow::MainWindow(QWidget *parent)
 
             for(int x=0;(x<maxDownloadSametime-downloadingMap.length())&&(x<downloadList.length());x++){
                 QPair<BSMap,MDownload*> pai;
+
                 pai.first=downloadList[0];
                 auto url=downloadList[0].url;
                 url=url.replace("na.",getSetting("downloadServer"));
@@ -223,11 +245,14 @@ void cacheDownloadProcess(MDownload* d){
 
 void MainWindow::on_updateCacheBtn_clicked()
 {
+    ui->dCtrlTip->setText("正在下载缓存..");
     MDownload *down=new MDownload(cacheAddr,QDir::currentPath(),nullptr);
     down->unzip();
     connect(down,&MDownload::finishedUnzipping,[=](MDownload *down){
+        ui->dCtrlTip->setText("正在解析缓存..");
         global::profile["cachePath"]=down->getUnzipPath().toStdString();
         readCache(down->getUnzipPath());
+        ui->dCtrlTip->setText("缓存解析成功.");
     });
 }
 

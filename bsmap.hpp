@@ -3,6 +3,7 @@
 #include<QList>
 #include"global.h"
 #include <QDebug>
+#include <QDir>
 
 #define mMap(a,b) tmp.b=splited[a]
 

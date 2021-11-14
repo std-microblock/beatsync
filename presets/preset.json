@@ -16,11 +16,76 @@
         }
     },
     {
+        "name": "低级包",
+        "description": "包含0-3星难度的歌曲包",
+        "author": "MicroBlock",
+        "link": "https://microblock.ink",
+        "filter": {
+            "stars": {
+                "min": 0,
+                "max": 3
+            },
+            "id": {
+                "exclude": [],
+                "include": []
+            }
+        }
+    },
+    {
+        "name": "初级包",
+        "description": "包含3-5星难度的歌曲包",
+        "author": "MicroBlock",
+        "link": "https://microblock.ink",
+        "filter": {
+            "stars": {
+                "min": 3,
+                "max": 5
+            },
+            "id": {
+                "exclude": [],
+                "include": []
+            }
+        }
+    },
+    {
+        "name": "高级包",
+        "description": "包含9-11星难度的歌曲包",
+        "author": "MicroBlock",
+        "link": "https://microblock.ink",
+        "filter": {
+            "stars": {
+                "min": 9,
+                "max": 11
+            },
+            "id": {
+                "exclude": [],
+                "include": []
+            }
+        }
+    },
+    {
+        "name": "硅基包",
+        "description": "包含11+星难度的歌曲包",
+        "author": "MicroBlock",
+        "link": "https://microblock.ink",
+        "filter": {
+            "stars": {
+                "min": 11
+            },
+            "id": {
+                "exclude": [],
+                "include": []
+            }
+        }
+    },
+    {
         "name": "手残包",
         "description": "包含每秒0-1方块难度的高评分歌曲包",
         "author": "WGzeyu",
         "link": "https://bs-WGzeyu.gtxcn.com/",
+        "limit":1000,
         "filter": {
+
             "nps": {
                 "min": 0,
                 "max": 1
@@ -36,6 +101,7 @@
         "description": "包含每秒1-3.5方块难度的高评分歌曲包",
         "author": "WGzeyu",
         "link": "https://bs-WGzeyu.gtxcn.com/",
+        "limit":1000,
         "filter": {
             "nps": {
                 "min": 1,
@@ -51,6 +117,7 @@
         "description": "包含每秒3.5-6方块难度的高评分歌曲包",
         "author": "WGzeyu",
         "link": "https://bs-WGzeyu.gtxcn.com/",
+        "limit":1000,
         "filter": {
             "nps": {
                 "min": 3.5,
@@ -66,6 +133,7 @@
         "description": "包含每秒6-9方块难度的高评分歌曲包",
         "author": "WGzeyu",
         "link": "https://bs-WGzeyu.gtxcn.com/",
+        "limit":1000,
         "filter": {
             "nps": {
                 "min": 6,
@@ -81,6 +149,7 @@
         "description": "包含每秒9-14方块难度的高评分歌曲包",
         "author": "WGzeyu",
         "link": "https://bs-WGzeyu.gtxcn.com/",
+        "limit":1000,
         "filter": {
             "nps": {
                 "min": 9,
@@ -96,6 +165,7 @@
         "description": "包含每秒14+方块难度的高评分歌曲包",
         "author": "WGzeyu",
         "link": "https://bs-WGzeyu.gtxcn.com/",
+        "limit":1000,
         "filter": {
             "nps": {
                 "min": 14
