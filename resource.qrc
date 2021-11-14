@@ -1,0 +1,12 @@
+<RCC>
+    <qresource prefix="/styles">
+        <file>style.qss</file>
+    </qresource>
+    <qresource prefix="/presets">
+        <file alias="preset.json">presets/preset.json</file>
+        <file alias="profile.json">presets/profile.json</file>
+    </qresource>
+    <qresource prefix="/images">
+        <file alias="beatsync.png">resources/beatsync.png</file>
+    </qresource>
+</RCC>

@@ -1,0 +1,47 @@
+*{
+font: 25 9pt "Microsoft YaHei";
+}
+QWidget{
+    background:white;
+}
+QPushButton{
+    color:white;
+    background:rgba(0, 123, 255, 255);
+    border-radius:2px;
+    padding:2px 5px;
+}
+
+
+QPushButton:hover{
+    color:white;
+    background:#0a69a3;
+    border-radius:2px;
+    padding:2px 5px;
+}
+
+QPushButton[topBarBtn=true]{
+    color:black;
+    border-left:1px gray;
+    border-right:1px #3f3f3f solid;
+    border-radius:0px;
+    background:#fcfdf8;
+    padding:2px 5px;
+}
+
+QPushButton[topBarBtn=true]:hover{
+    color:white;
+    background:#3f3f3f;
+    padding:2px 5px;
+}
+
+QComboBox{ border:1px solid gray;  border-radius:2px;}
+QComboBox::drop-down{
+subcontrol-origin:padding;
+subcontrol-position:top right;
+width:10px;
+border-left-width:1px;
+border-left-color:darkgray;
+border-left-style:solid;
+border-top-right-radius:3px;
+border-bottom-right-radius:3px;}
+QComboBox QAbstractItemView{border: 2px solid #4E6D8C;border-radius:2px;}
