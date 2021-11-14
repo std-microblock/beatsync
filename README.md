@@ -4,6 +4,8 @@
 BeatSaber的**一键式，傻瓜式**谱面下载软件，可以非常方便快速地下载你想要的曲目
 #### 下载地址：[https://github.com/MicroCBer/beatsync/releases/latest](https://github.com/MicroCBer/beatsync/releases/latest)
 
+本软件**使用便捷，功能比较简单**，如果你在寻找**功能丰富的曲包下载/处理工具**，可以试试[**WGzeyu**的**BeatSpider**](https://github.com/WGzeyu/BeatSpider)
+
 ## 快速！
 使用来自[WGzeyu](https://bs-wgzeyu.gtxcn.com/)的国内缓存下载镜像，配合C++的超高运行效率，可以在**3秒**内完成所有**接近6万首**歌曲的筛选。
 
