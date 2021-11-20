@@ -18,13 +18,14 @@ SettingsWin::SettingsWin(QWidget *parent) :
     ui->maxDownloadNum->setRange(1,16);
     ui->maxDownloadNum->setValue(getSetting("maxDownloadNum").toInt());
 
-    ui->customLevelsPosition->setText(getSetting("customLevels"));
+    ui->customLevelsPosition->setText(getSetting("gamePath"));
 
     ui->cacheDownload->setDisabled(true);
 
     ui->enableHTTP->setChecked(getSetting("enableProxy").toInt());
     ui->HTTPProxyAddr->setText(getSetting("proxyAddr"));
     ui->HTTPProxyAddr->setDisabled(!getSetting("enableProxy").toInt());
+    ui->autoSetSongList->setChecked(getSetting("autoFillPlaylist")=="1");
 }
 
 SettingsWin::~SettingsWin()
@@ -35,11 +36,11 @@ SettingsWin::~SettingsWin()
 void SettingsWin::on_pushButton_clicked()
 {
     fillSetting("downloadServer",ui->comboBox->currentText());
-    fillSetting("customLevels",ui->customLevelsPosition->text());
+    fillSetting("gamePath",ui->customLevelsPosition->text());
     fillSetting("maxDownloadNum",ui->maxDownloadNum->text());
     fillSetting("enableProxy",ui->enableHTTP->isChecked()?"1":"0");
     fillSetting("proxyAddr",ui->HTTPProxyAddr->text());
-
+    fillSetting("autoFillPlaylist",ui->autoSetSongList->isChecked()?"1":"0");
     QApplication::closeAllWindows();
     QProcess::startDetached(QCoreApplication::applicationFilePath());
 }

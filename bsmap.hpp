@@ -21,7 +21,7 @@ class BSMap
 {
 public:
     QList<BSDifficulty> difficulties;
-    QString id,name,url;
+    QString id,name,url,hash;
     bool ranked;
 
     bool matchJSONFilter(nljson filter){
@@ -42,6 +42,9 @@ public:
         if(!flagPass)return false;
         return true;
     }
+
+
+
     static BSMap fromCSV(QString csv){
         BSMap tmp;
         auto splited=csv.split(',');
@@ -50,6 +53,7 @@ public:
         mMap(1,name);
         tmp.ranked=(splited[2]=="1");
         mMap(4,url);
+        tmp.hash=tmp.url.split("/").last().replace(".zip","");
         for(int x=5;x<splited.length();x++){
             auto diff=splited[x].split('~');
             if(diff.length()<5)continue;

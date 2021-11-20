@@ -1,5 +1,22 @@
 [
     {
+        "name": "最新排",
+        "description": "包含最近10首（未下载过的）Ranked曲",
+        "author": "MicroBlock",
+        "link": "https://microblock.ink",
+        "number":10,
+        "filter": {
+            "stars": {
+                "min": -1,
+                "max": 1000
+            },
+            "id": {
+                "exclude": [],
+                "include": []
+            }
+        }
+    },
+    {
         "name": "中级包",
         "description": "包含5-9星难度的歌曲包",
         "author": "MicroBlock",

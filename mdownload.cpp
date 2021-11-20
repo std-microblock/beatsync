@@ -18,11 +18,11 @@ long long MDownload::getUsedMS(){
 }
 
 long long CovertToBytes(QString c){
-    int value=0;
-    for(int x=0;x<c.length()&&c[x].isNumber();x++){
-        value*=10;
-        value+=c[x].toLatin1()-'0';
-    }
+
+    QString number;
+    for(int x=0;x<c.length()&&(c[x].isNumber()||c[x]=='.');x++)
+        number+=c[x];
+    double value=number.toDouble();
 
     if(c.endsWith("KiB"))
         return value*1024;
@@ -59,9 +59,9 @@ void MDownload::_unzip(){
 
     if(realFilePath.endsWith(".zip"))unzipPath=realFilePath.left(realFilePath.length()-4);
     else unzipPath=realFilePath+"_extracted";
-    args<<"x"<<QString(realFilePath).replace("//","/")<<"-o"+unzipPath;
+    args<<"x"<<QString(realFilePath).replace("//","/")<<"-o"+unzipPath<<"-y";
     this->szipProcess.start(SZIP_Path,args);
-    qDebug()<<"Unzip args:"<<args.join(" ");
+//    qDebug()<<"Unzip args:"<<args.join(" ");
 
 }
 
@@ -72,7 +72,14 @@ MDownload::MDownload(QString url,QString path,QObject* pa=nullptr)
     url=url.replace("\\","/");
     path=path.replace("\\","/");
     this->startTime=QDateTime::currentMSecsSinceEpoch();
-    qDebug()<<"Inited"<<url;
+    qDebug()<<"Downloading - "<<url;
+
+    QDir downloadDir(path);
+    auto ent=downloadDir.entryList(QStringList("*.aria2"));
+    for(auto i:ent){
+        qDebug()<<i;
+        QFile(i).remove();
+    }
 
     QObject::connect(&this->aria2cProcess, &QProcess::readyReadStandardOutput ,[&](){
         auto output=QString(this->aria2cProcess.readAllStandardOutput())
@@ -85,7 +92,7 @@ MDownload::MDownload(QString url,QString path,QObject* pa=nullptr)
 
         while(match.length()!=0&&match[0]=="")match.removeFirst();
         if(match.length()==0)return;
-        qDebug()<<"[Aria2c] "+output;
+//        qDebug()<<"[Aria2c] "+output;
 
         if(match[0].startsWith("#")){
             size=match[1].split("/")[1];

@@ -41,6 +41,7 @@ public:
     QString getUnzipPath(){return unzipPath;};
 
     MDownload(QString url,QString path,QObject* pa);
+
 };
 
 #endif // MDOWNLOAD_H

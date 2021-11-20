@@ -94,7 +94,7 @@ border-radius:2px;</string>
       </rect>
      </property>
      <property name="text">
-      <string>CustomLevels位置</string>
+      <string>游戏位置</string>
      </property>
     </widget>
     <widget class="QLineEdit" name="customLevelsPosition">
@@ -190,6 +190,24 @@ border-radius:2px;</string>
      </property>
      <property name="text">
       <string>启用</string>
+     </property>
+    </widget>
+   </widget>
+   <widget class="QWidget" name="maps">
+    <attribute name="title">
+     <string>游戏</string>
+    </attribute>
+    <widget class="QCheckBox" name="autoSetSongList">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>10</y>
+       <width>131</width>
+       <height>18</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>自动设置歌曲列表</string>
      </property>
     </widget>
    </widget>

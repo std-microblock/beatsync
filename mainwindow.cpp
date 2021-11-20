@@ -8,13 +8,14 @@
 #include <QDir>
 #include "global.h"
 #include "bsmap.hpp"
+#include <QCryptographicHash>
 #include <QPair>
 
 using nljson=nlohmann::json;
 
 #define maxDownloadSametime getSetting("maxDownloadNum").toInt()
-#define CustomLevelsPath getSetting("customLevels")
-
+#define CustomLevelsPath getSetting("gamePath")+"/Beat Saber_Data/CustomLevels"
+#define PlistPath getSetting("gamePath")+"/Playlists"
 #define cacheAddr "https://share.wgzeyu.top/savercache/getcache.php?type=csv"
 #define nlJsonStr(a) QString::fromStdString(a.get<std::string>())
 
@@ -55,20 +56,24 @@ MainWindow::MainWindow(QWidget *parent)
     ui->setupUi(this);
     ui->subscribeDetail->hide();
 
-
+    // Update temp
+    {
+    ui->updateCacheBtn->click();
     {
         //        qDebug()<<QString::fromStdString(global::profile["cachePath"].get<std::string>());
-        if(global::profile["cachePath"].is_string())readCache(QString::fromStdString(global::profile["cachePath"].get<std::string>()));
-        else ui->updateCacheBtn->click();
+//        if(global::profile["cachePath"].is_string())readCache(QString::fromStdString(global::profile["cachePath"].get<std::string>()));
+//        else
     }
-
-
+    this->setDisabled(true);
+    }
+    // Initize downloading list
     {
         QStringList downloadHeader;
         downloadHeader<<"文件名"<<"进度"<<"速度";
         ui->downloadList->setEditTriggers(QAbstractItemView::NoEditTriggers);
-        ui->downloadList->setSelectionBehavior(QAbstractItemView::SelectRows);
-        ui->downloadList->setSelectionMode(QAbstractItemView::SingleSelection);
+        //        ui->downloadList->setSelectionBehavior(QAbstractItemView::NoSelection);
+        ui->downloadList->setFocusPolicy(Qt::NoFocus);
+        ui->downloadList->setSelectionMode(QAbstractItemView::NoSelection);
         ui->downloadList->setShowGrid(false);
         ui->downloadList->setColumnCount(downloadHeader.count());
         ui->downloadList->setHorizontalHeaderLabels(downloadHeader);
@@ -79,8 +84,6 @@ MainWindow::MainWindow(QWidget *parent)
         ui->downloadList->setColumnWidth(1,61);
         ui->downloadList->setRowCount(maxDownloadSametime);
     }
-    //    ui->downloadList->setVerticalScrollMode(ScrollMode::);
-
     // Initize presets
     {
         QStringList presetsHeader;
@@ -94,9 +97,9 @@ MainWindow::MainWindow(QWidget *parent)
         ui->subscribes->setHorizontalHeaderLabels(presetsHeader);
 
         ui->subscribes->setColumnWidth(0,60);
-        ui->subscribes->setColumnWidth(1,275);
+        ui->subscribes->setColumnWidth(1,233);
         ui->subscribes->setColumnWidth(2,100);
-        ui->subscribes->setColumnWidth(3,129);
+        ui->subscribes->setColumnWidth(3,165);
         ui->subscribes->horizontalHeader()->setDisabled(true);
         ui->subscribes->verticalHeader()->setDisabled(true);
 
@@ -104,7 +107,6 @@ MainWindow::MainWindow(QWidget *parent)
                 &QTableWidget::itemSelectionChanged,
                 [=](){
             int currentRow=ui->subscribes->currentRow();
-            qDebug()<<currentRow;
             ui->subscribeName->setText(ui->subscribes->item(currentRow,0)->data(Qt::DisplayRole).toString());
             ui->subscribeDesc->setText(ui->subscribes->item(currentRow,1)->data(Qt::DisplayRole).toString());
             ui->subscribeAuthor->setText(ui->subscribes->item(currentRow,2)->data(Qt::DisplayRole).toString());
@@ -121,8 +123,9 @@ MainWindow::MainWindow(QWidget *parent)
             ui->subscribes->setRowCount(row);
             ui->subscribes->
                     setItem(row-1,0,new QTableWidgetItem(nlJsonStr(pset["name"])));
+            auto item=new QTableWidgetItem(nlJsonStr(pset["description"]));item->setToolTip(nlJsonStr(pset["description"]));
             ui->subscribes->
-                    setItem(row-1,1,new QTableWidgetItem(nlJsonStr(pset["description"])));
+                    setItem(row-1,1,item);
             ui->subscribes->
                     setItem(row-1,2,new QTableWidgetItem(nlJsonStr(pset["author"])));
             QWidget* pWidget = new QWidget();
@@ -130,30 +133,76 @@ MainWindow::MainWindow(QWidget *parent)
             btnSync->setText("同步");
             btnSync->setStyleSheet("padding:2px 10px;border-radius:2px");
             connect(btnSync,&QPushButton::clicked,[=](){
-                int counter=0;
+                int counter=0,actualDown=0;
                 QDir songsDir(CustomLevelsPath);
+                QDir plistDir(PlistPath);
                 songsDir.setFilter(QDir::Dirs);
                 auto songList=songsDir.entryList();
-                for(int x=0;x<maps.length()&&
-                    (!pset["limit"].is_number_integer()||
-                     counter<pset["limit"].get<int>());x++){
+                auto plists=plistDir.entryList();
+                QString plistName=nlJsonStr(pset["description"])+"_beatsync"+".bplist";
+                nljson plistJson;
+                auto plistFile=QFile(PlistPath+"/"+plistName);
+
+
+                if(getSetting("autoFillPlaylist")=="1"){
+
+                    plistFile.open(QFile::ReadOnly);
+                    try{
+                        plistJson=nljson::parse(plistFile.readAll());
+                    }catch(...){
+                        plistJson=nljson::parse("{}");
+                        plistJson["playlistTitle"]=pset["name"];
+                        plistJson["playlistAuthor"]=pset["author"];
+                        plistJson["PlaylistDescription"]=(QString("[ 由BeatSync(https://github.com/MicroCBer/beatsync)自动生成 ] ")+QString(nlJsonStr(pset["description"]))).toStdString();
+                    }
+
+                    plistJson["songs"]=nljson::array();
+                    plistFile.close();
+                    plistFile.open(QFile::WriteOnly);
+                }
+
+                for(int x=0;x<maps.length();x++){
+                    try{
+                    if(!(!pset["limit"].is_number_integer()||
+                         counter<pset["limit"].get<int>())){
+                        break;
+                    }
+
+                    if(!(!pset["number"].is_number_integer()||
+                         actualDown<pset["number"].get<int>())){
+                        break;
+                    }
+                    }catch(nljson::other_error err){
+                        qDebug()<<err.what();
+                        return 0;
+                    }
 
                     bool flagExists=false;
                     for(int a=0;a<songList.size();a++){
-//                        qDebug()<<maps[x].id;
+                        //                        qDebug()<<maps[x].id;
                         if(songList[a].startsWith(maps[x].id)){
                             flagExists=true;
                             break;
                         }
                     }
-                    if(flagExists)continue;
 
 
-                    if(maps[x].matchJSONFilter(pset["filter"])
-                            &&findInDownloadList(maps[x])==-1){
-                        downloadList.push_back(maps[x]);
+
+                    if(maps[x].matchJSONFilter(pset["filter"])){
+                        auto obj=nljson::object();
+                        obj["hash"]=maps[x].hash.toStdString();
+                        plistJson["songs"].push_back(obj);
                         counter++;
+                        if(flagExists||findInDownloadList(maps[x])!=-1)continue;
+                        actualDown++;
+                        downloadList.push_back(maps[x]);
                     }
+                }
+                qDebug()<<PlistPath+"/"+plistName;
+                if(getSetting("autoFillPlaylist")=="1"){
+
+                    plistFile.write(QString::fromStdString(plistJson.dump()).toUtf8());
+                    plistFile.close();
                 }
             });
 
@@ -164,7 +213,7 @@ MainWindow::MainWindow(QWidget *parent)
             btn_edit3->setStyleSheet("padding:2px 10px;border-radius:2px");
             QHBoxLayout* pLayout = new QHBoxLayout(pWidget);
             pLayout->addWidget(btnSync);
-            //            pLayout->addWidget(btn_edit2);
+            pLayout->addWidget(btn_edit2);
             pLayout->addWidget(btn_edit3);
             pLayout->setAlignment(Qt::AlignCenter);
             pLayout->setContentsMargins(0, 0, 0, 0);
@@ -173,8 +222,7 @@ MainWindow::MainWindow(QWidget *parent)
 
         }
     }
-
-    // Download list
+    // Downloading list events
     {
         QTimer* timer=new QTimer(this);
         connect(timer,&QTimer::timeout,[=](){
@@ -248,11 +296,14 @@ void MainWindow::on_updateCacheBtn_clicked()
     ui->dCtrlTip->setText("正在下载缓存..");
     MDownload *down=new MDownload(cacheAddr,QDir::currentPath(),nullptr);
     down->unzip();
-    connect(down,&MDownload::finishedUnzipping,[=](MDownload *down){
+    connect(down,&MDownload::finishedDownloading,[=](MDownload *down){
         ui->dCtrlTip->setText("正在解析缓存..");
+    });
+    connect(down,&MDownload::finishedUnzipping,[=](MDownload *down){
         global::profile["cachePath"]=down->getUnzipPath().toStdString();
         readCache(down->getUnzipPath());
         ui->dCtrlTip->setText("缓存解析成功.");
+        this->setDisabled(false);
     });
 }
 
