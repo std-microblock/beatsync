@@ -11,6 +11,7 @@
 #include <QCryptographicHash>
 #include <QPair>
 
+
 using nljson=nlohmann::json;
 
 #define maxDownloadSametime getSetting("maxDownloadNum").toInt()
@@ -22,7 +23,6 @@ using nljson=nlohmann::json;
 QList<BSMap> maps;
 QList<BSMap> downloadList;
 QList<QPair<BSMap,MDownload*>> downloadingMap;
-
 
 void readCache(QString path){
     QFile csv(path+"/LocalCache.csv");
@@ -56,6 +56,11 @@ MainWindow::MainWindow(QWidget *parent)
     ui->setupUi(this);
     ui->subscribeDetail->hide();
 
+    if(getSetting("gamePath").startsWith("unset")){
+        fillSetting("gamePath",MainWindow::autoGetGamePath());
+        this->settingWin.reInitUI();
+    }
+
     // Update temp
     {
     ui->updateCacheBtn->click();
@@ -71,7 +76,6 @@ MainWindow::MainWindow(QWidget *parent)
         QStringList downloadHeader;
         downloadHeader<<"文件名"<<"进度"<<"速度";
         ui->downloadList->setEditTriggers(QAbstractItemView::NoEditTriggers);
-        //        ui->downloadList->setSelectionBehavior(QAbstractItemView::NoSelection);
         ui->downloadList->setFocusPolicy(Qt::NoFocus);
         ui->downloadList->setSelectionMode(QAbstractItemView::NoSelection);
         ui->downloadList->setShowGrid(false);

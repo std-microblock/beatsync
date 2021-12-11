@@ -20,6 +20,23 @@ public:
     MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
 
+    static QString autoGetGamePath(){
+        QSettings reg("HKEY_LOCAL_MACHINE\\SOFTWARE\\Valve\\Steam",QSettings::NativeFormat);
+        QSettings reg2("HKEY_LOCAL_MACHINE\\SOFTWARE\\WOW6432Node\\Valve\\Steam",QSettings::NativeFormat);
+        auto steamPath=reg2.value("InstallPath",reg.value("InstallPath").toString()).toString();
+        QFile fileSteamLib(steamPath+"\\steamapps\\libraryfolders.vdf");
+        fileSteamLib.open(QFile::ReadOnly);
+        auto dfile=QString(fileSteamLib.readAll());
+        auto paths=dfile.split("\"path\"\t\t\"");
+        for(auto path:paths){
+            auto libpath=path.split("\"")[0].replace(":\\\\",":\\");
+            QFile file(libpath+"\\steamapps\\common\\Beat Saber\\Beat Saber.exe");
+            if(file.exists()){
+               return(libpath+"\\steamapps\\common\\Beat Saber\\");
+            }
+        }
+    }
+
 private slots:
     void on_testsBtn_clicked();
 

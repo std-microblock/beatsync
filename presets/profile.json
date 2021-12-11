@@ -2,7 +2,7 @@
     "cacheFileAddress":"https://share.wgzeyu.top/savercache/getcache.php?type=csv",
     "downloadServer":"eu.",
     "maxDownloadNum":"8",
-    "gamePath":"E:\\SteamLib\\steamapps\\common\\Beat Saber",
+    "gamePath":"unset",
     "enableProxy":"0",
     "proxyAddr":"http://localhost:41091",
     "autoFillPlaylist":"1"

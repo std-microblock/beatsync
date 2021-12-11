@@ -2,7 +2,9 @@
 #include "ui_settingswin.h"
 #include "global.h"
 #include <QProcess>
-
+#include <QFile>
+#include <QSettings>
+#include <mainwindow.h>
 
 SettingsWin::SettingsWin(QWidget *parent) :
     QDialog(parent),
@@ -14,7 +16,10 @@ SettingsWin::SettingsWin(QWidget *parent) :
         ui->comboBox->addItems(items);
         ui->comboBox->setCurrentIndex(items.indexOf(getSetting("downloadServer")));
     }
+    reInitUI();
+}
 
+void SettingsWin::reInitUI(){
     ui->maxDownloadNum->setRange(1,16);
     ui->maxDownloadNum->setValue(getSetting("maxDownloadNum").toInt());
 
@@ -49,5 +54,11 @@ void SettingsWin::on_pushButton_clicked()
 void SettingsWin::on_enableHTTP_stateChanged(int arg1)
 {
     ui->HTTPProxyAddr->setDisabled(!ui->enableHTTP->isChecked());
+}
+
+
+void SettingsWin::on_pushButton_2_clicked()
+{
+     ui->customLevelsPosition->setText(MainWindow::autoGetGamePath());
 }
 

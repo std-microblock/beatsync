@@ -14,11 +14,13 @@ class SettingsWin : public QDialog
 public:
     explicit SettingsWin(QWidget *parent = nullptr);
     ~SettingsWin();
-
+void reInitUI();
 private slots:
     void on_pushButton_clicked();
 
     void on_enableHTTP_stateChanged(int arg1);
+
+    void on_pushButton_2_clicked();
 
 private:
     Ui::SettingsWin *ui;
